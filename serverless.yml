@@ -1,0 +1,45 @@
+service: profanitydetector
+
+custom:
+  stage: ${opt:stage}
+  env: ${file(${opt:stage}.yml)}
+  apiGatewayThrottling:
+    maxRequestsPerSecond: 1
+    maxConcurrentRequests: 100
+
+# You can pin your service to only deploy with a specific Serverless version
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  region: eu-central-1
+  runtime: dotnetcore3.1
+  lambdaHashingVersion: 20201221
+
+package:
+  individually: true
+
+functions:
+  detect:
+    handler: CsharpHandlers::AwsDotnetCsharp.Handler::Detect
+    environment:
+      enableFin: ${self:custom.env.enableFin}
+    events:
+      - http:
+          path: isok
+          method: post
+    package:
+      artifact: bin/Release/netcoreapp3.1/profanitydetector.zip
+  censor:
+    handler: CsharpHandlers::AwsDotnetCsharp.Handler::Censor
+    environment:
+      enableFin: ${self:custom.env.enableFin}
+    events:
+      - http:
+          path: censor
+          method: post
+    package:
+      artifact: bin/Release/netcoreapp3.1/profanitydetector.zip
+
+plugins:
+  - serverless-api-gateway-throttling
