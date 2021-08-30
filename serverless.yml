@@ -41,5 +41,23 @@ functions:
     package:
       artifact: bin/Release/netcoreapp3.1/profanitydetector.zip
 
+resources:
+  Resources:
+
+    # Delete CloudWatch logs after 7 days 
+    # 
+    # Must refer to function's LogGroups using normalizedFunctionName 
+    # See https://serverless.com/framework/docs/providers/aws/guide/resources#aws-cloudformation-resource-reference 
+    # You can also look into ./serverless/cloudformation-template-update-stack.json 
+    DetectLogGroup: 
+      Type: AWS::Logs::LogGroup 
+      Properties: 
+        RetentionInDays: "7" 
+    
+    CensorLogGroup: 
+      Type: AWS::Logs::LogGroup 
+      Properties: 
+        RetentionInDays: "7" 
+
 plugins:
   - serverless-api-gateway-throttling
